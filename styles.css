@@ -1,0 +1,134 @@
+:root {
+  font-family: "Darker Grotesque", "Arial", sans-serif;
+  --blue-gradient: linear-gradient(180deg,rgba(0, 55, 101, 1) 0%, rgba(0, 111, 203, 1) 100%);
+}
+
+body {
+  font-family: var(--font-family);
+  font-weight: 400;
+  background-image: var(--blue-gradient);
+  background-repeat: no-repeat;
+  background-size: cover;
+  color: white;
+}
+
+.bg-panel {
+  background-color: #5ba2e4;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-rows: [row1-start] 5rem [row1-end] [row2-start] 5rem [row2-end];
+  grid-template-columns: 0.5fr 3.5fr 2fr;
+  gap: 20px;
+  border-style: solid;
+  border-width: 2px;
+}
+
+.weather-display {
+  display: flex;
+  background-color: transparent !important;
+  justify-content: space-around;
+  align-items: center;
+  margin: 0 20px;
+}
+
+.grid-container * {
+  border-radius: 10px;
+}
+
+.grid-container > * {
+  border: 2px dotted black;
+}
+
+.nav-sidebar {
+  display: grid;
+  place-items: center;
+  gap: 5px;
+}
+
+.nav-icon {
+  border: 2px dotted black;
+  width: 3rem;
+  height: 3rem;
+}
+
+.hourly-grid {
+  display: grid;
+  grid-template-columns: 5rem 5rem 5rem 5rem;
+  padding: 0 10px;
+  margin: 15px 10px;
+  gap: 0 2rem;
+  justify-content: center;
+  border: solid black 1px;
+}
+
+.weather-info-grid {
+  display: grid;
+  grid-template-areas:
+      "winddirection windspeed"
+      "sunrise sunset";
+  padding: 0 10px;
+  margin: 15px 10px;
+  gap: 0 10rem;
+  justify-content: center;
+  border: solid black 1px;
+}
+
+.current-weather-info {
+  line-height: 0.6;
+  text-align: center;
+}
+
+.current-weather-icon {
+  border: dotted 2px black;
+  height: 6rem;
+  width: 6rem;
+}
+
+.search-section {
+  margin: 0 10px;
+}
+
+input {
+  border-color: white;
+}
+
+input::placeholder {
+  color: white !important;
+}
+
+.forecast-day {
+  width: auto;
+  height: 3rem;
+  padding: 0 1rem;
+  position: relative;
+}
+
+.pseudo-border::before {
+  content: ''; 
+  position: absolute; 
+  bottom: 0; 
+  left: 50%; 
+  transform: translateX(-50%); 
+  width: 90%; 
+  height: 3px; 
+  background: #0E3567;
+}
+
+#dropdown-menu {
+  display: grid;
+  grid-template-areas: 
+      "suggestion"
+      "suggestion"
+      "suggestion";
+  background-color: lightblue;
+  width: 11rem; 
+  height: 4rem;
+  border: 2px solid;
+  position: absolute;
+}
+
+.hidden {
+  visibility: hidden;
+}
