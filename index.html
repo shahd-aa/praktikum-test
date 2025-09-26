@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Wetter App</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- darker grotesque font -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@300..900&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="styles.css">
+    <script type="text/javascript" src="https://me.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=OZPdMOEohw7KrRPd2a-5HLZW2caM_wx8SLhBrVqslAR4twKtWDs_fgmvRRmDmwivWovBdt2SZuVw2ISCg0-c-UuU1W8q1ojSixJFMssKMnanr2RRXHo05-25Zh51LZ11NDTxK0htgJ8wJhbex4QmSOmnORvy7KlLq3d8A5UFtvCuofisatQmHAGFYWMSIWv_C3ys6G-TKKzyYGbX1EwH9hEBRqcAmyaAuDu6RFJOt28" charset="UTF-8"></script><script type="module" src="script.js"></script>
+</head>
+
+<body>
+    <div class="grid-container">
+        <div class="bg-panel nav-sidebar">
+            <div class="nav-icon" id="weather-icon"></div>
+            <div class="nav-icon" id="current-location-icon"></div>
+            <div class="nav-icon" id="other-locations-icon"></div>
+        </div>
+
+        <div class="main-menu">
+            <div class="search-section">
+                <input class="bg-panel" id="search-bar" type="text"
+                    placeholder="Ort suchen..." name="search">
+                <div class="hidden" id="dropdown-menu">
+                    <div class="dropdown-suggestion">Suggestion 1</div>
+                    <div class="dropdown-suggestion">Suggestion 2</div>
+                    <div class="dropdown-suggestion">Suggestion 2</div>
+                </div>
+            </div>
+
+            <div class="weather-display">
+                <div class="current-weather-info">
+                    <h1> [platzhalter für stadt] </h1>
+                    <h3> [bsp: überwiegend Regen] </h3>
+                    <span class="temperature-display"> </span>
+                </div>
+                <div class="current-weather-icon"></div>
+            </div>
+
+
+            <div class="bg-panel hourly-grid">
+                <p>test</p>
+                <p>test</p>
+                <p>test</p>
+                <p>test</p>
+            </div>
+
+            <div class="bg-panel weather-info-grid">
+                <p>test</p>
+                <p>test</p>
+                <p>test</p>
+                <p>test</p>
+            </div>
+        </div>
+
+        <div class="bg-panel weekly-weather-sidebar">
+            <div class="pseudo-border forecast-day"></div>
+            <div class="pseudo-border forecast-day"></div>
+            <div class="pseudo-border forecast-day"></div>
+            <div class="pseudo-border forecast-day"></div>
+            <div class="pseudo-border forecast-day"></div>
+            <div class="pseudo-border forecast-day"></div>
+            <div class="forecast-day"></div>
+        </div>
+    </div>
+
+</body>
+
+</html>
