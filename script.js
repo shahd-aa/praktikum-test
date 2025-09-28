@@ -1,7 +1,7 @@
 let weatherResult = null;
 
 async function getWeatherData(stationID) {
-    const url = "http://localhost:5001/weather/${stationID}"
+    const url = `http://localhost:5001/weather/${stationID}`
     try {
         // get request -- wait for response
         const response = await fetch(url);
@@ -98,13 +98,13 @@ document.addEventListener("DOMContentLoaded", function () {
     searchBar.addEventListener("keydown", function (event) {
         if (event.key === "Enter") {
             let searchInput = getInput(searchBar)
-            if (!searchInput) return [];
+            if (!searchInput) 
 
-            // clean up user input
-
+            // filters based off of input, checks if at least 1 city was found
             let filtered = filterData(searchInput)
             if (filtered.length > 0) {
                 let cityID = filtered[0].id
+                // api needs id, not city name
                 getWeatherData(cityID)
             }
             else {
@@ -131,15 +131,14 @@ document.addEventListener("DOMContentLoaded", function () {
         let input = getInput(searchBar)
         let data = filterData(input)
 
-        let matches = data.slice(0, 3);
+        matches = data.slice(0, 3);
         console.log(matches)
 
+        // for every suggestion div, get the city match based off of index
         for (let i = 0; i < suggestionsDisplay.length; i++) {
-            // optional chaining: access properties of objects (safe if undefined)
             let selectedCity = matches[i];
+            // optional chaining: access properties of objects (safe if undefined)
             suggestionsDisplay[i].innerHTML = selectedCity?.name || '';
-
-            // for each item, listen to click
         }
     })
 
@@ -149,13 +148,17 @@ document.addEventListener("DOMContentLoaded", function () {
 
         if (clickedItem.classList.contains("dropdown-suggestion")) {
             console.log("clicked a suggestion!")
-            const clickedIndex = Array.from(allSuggestions).indexOf(clickedItem);
+            // get the index of the 1 suggestion out of 3 that was clicked 
+            const clickedIndex = Array.from(suggestionsDisplay).indexOf(clickedItem);
+            // match the city with the index
             let selectedCity = matches[clickedIndex]
 
             try {
                 cityName.innerHTML = selectedCity.name
 
                 getWeatherData(selectedCity.id)
+                // clear searchbar value after user clicked
+                searchBar.value = ""
 
             } catch (error) {
                 cityName.innerHTML = "nothing found"
