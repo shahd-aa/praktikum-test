@@ -1,7 +1,7 @@
 let weatherResult = null;
 
 async function getWeatherData(stationID) {
-    const url = "https://corsproxy.io/?https://dwd.api.proxy.bund.dev/v30/stationOverviewExtended?stationIds=00853,10577"
+    const url = "http://localhost:5001/weather/${stationID}"
     try {
         // get request -- wait for response
         const response = await fetch(url);
@@ -97,11 +97,21 @@ document.addEventListener("DOMContentLoaded", function () {
     // listen for user input
     searchBar.addEventListener("keydown", function (event) {
         if (event.key === "Enter") {
-            // clean up user input
             let searchInput = getInput(searchBar)
-
             if (!searchInput) return [];
-        };
+
+            // clean up user input
+
+            let filtered = filterData(searchInput)
+            if (filtered.length > 0) {
+                let cityID = filtered[0].id
+                getWeatherData(cityID)
+            }
+            else {
+                console.log("error! no cities match")
+                // CHANGE THIS TO SHOW NO MATCH ON DROPDOWN MENU
+            }
+        }
     });
 
     // EVENT LISTENERS
@@ -113,6 +123,10 @@ document.addEventListener("DOMContentLoaded", function () {
         setTimeout(() => removeVisibility(dropdownMenu), 200)
     })
 
+
+    let matches = []
+    const suggestionsDisplay = Array.from(document.querySelectorAll(".dropdown-suggestion"));
+
     searchBar.addEventListener("input", () => {
         let input = getInput(searchBar)
         let data = filterData(input)
@@ -120,24 +134,33 @@ document.addEventListener("DOMContentLoaded", function () {
         let matches = data.slice(0, 3);
         console.log(matches)
 
-        const suggestionsDisplay = Array.from(document.querySelectorAll(".dropdown-suggestion"));
         for (let i = 0; i < suggestionsDisplay.length; i++) {
             // optional chaining: access properties of objects (safe if undefined)
             let selectedCity = matches[i];
             suggestionsDisplay[i].innerHTML = selectedCity?.name || '';
 
             // for each item, listen to click
-            suggestionsDisplay[i].addEventListener("click", () => {
-                console.log("clicked a suggestion!")
-                try {
-                    cityName.innerHTML = selectedCity.name
-
-                    getWeatherData(selectedCity.id)
-
-                } catch (error) {
-                    cityName.innerHTML = "nothing found"
-                }
-            })
         }
     })
+
+    dropdownMenu.addEventListener("click", (event) => {
+        // get the item that was clicked inside the div
+        let clickedItem = event.target;
+
+        if (clickedItem.classList.contains("dropdown-suggestion")) {
+            console.log("clicked a suggestion!")
+            const clickedIndex = Array.from(allSuggestions).indexOf(clickedItem);
+            let selectedCity = matches[clickedIndex]
+
+            try {
+                cityName.innerHTML = selectedCity.name
+
+                getWeatherData(selectedCity.id)
+
+            } catch (error) {
+                cityName.innerHTML = "nothing found"
+            }
+        }
+    })
+
 });
