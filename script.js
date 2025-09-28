@@ -98,7 +98,7 @@ document.addEventListener("DOMContentLoaded", function () {
     searchBar.addEventListener("keydown", function (event) {
         if (event.key === "Enter") {
             let searchInput = getInput(searchBar)
-            if (!searchInput) 
+            if (!searchInput) return;
 
             // filters based off of input, checks if at least 1 city was found
             let filtered = filterData(searchInput)
@@ -106,6 +106,7 @@ document.addEventListener("DOMContentLoaded", function () {
                 let cityID = filtered[0].id
                 // api needs id, not city name
                 getWeatherData(cityID)
+                removeVisibility(dropdownMenu)
             }
             else {
                 console.log("error! no cities match")
