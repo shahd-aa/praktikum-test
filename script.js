@@ -1,4 +1,24 @@
 let weatherResult = null;
+const icons = {
+    1: {
+        url: "https://i.imgur.com/gBCEmCB.png",
+        description: "Sonne"
+    },
+    2: {
+        url: "https://i.imgur.com/YBYf4Nl.png",
+        description: "leicht bewölkt"
+    },
+    3: {
+        url: "https://i.imgur.com/YBYf4Nl.png",
+        description: "bewölkt"
+    },
+    4: {
+        url: "https://i.imgur.com/IX8JcKn.png",
+        description: "Wolken"
+    }
+};
+
+
 
 async function getWeatherData(stationID, stationNumber) {
     const url = `https://corsproxy.io/?https://dwd.api.proxy.bund.dev/v30/stationOverviewExtended?stationIds=${stationID},${stationNumber}`
@@ -30,11 +50,15 @@ async function getWeatherData(stationID, stationNumber) {
         console.log("this is tempresult", tempResult)
 
         // info to display (add as much as wanted)
+        let temperature = tempResult.temperature
+
         const weatherDisplay = {
             day: dayData.dayDate,
-            temperature: tempResult.temperature[0] / 10,
+            currentTemp: temperature[0] / 10,
             maxTemp: dayData.temperatureMax / 10,
-            minTemp: dayData.temperatureMin / 10
+            minTemp: dayData.temperatureMin / 10,
+            tempArray: temperature,
+            icon: dayData.icon
         }
 
         displayData(weatherDisplay)
@@ -45,12 +69,56 @@ async function getWeatherData(stationID, stationNumber) {
     }
 }
 
-// getWeatherData(stationID)
+let hasIcon = false
+
+function displayIcon(iconNumber) {
+    if (!hasIcon) {
+        hasIcon = true
+        const iconDisplay = document.querySelector(".current-weather-icon")
+
+        let icon = icons[iconNumber]
+        console.log("icon number: ", icon)
+
+        //let iconNumberAPI = parseInt(data.icon)
+        if (icon) {
+            const imgElement = document.createElement("img");
+            imgElement.style.width = "110px";
+            imgElement.style.height = "100px";
+            imgElement.src = icon.url
+            iconDisplay.appendChild(imgElement)
+        }
+        else {
+            hasIcon = false
+            // show default icon ? 
+        }
+    }
+}
+
+function displayHourTime(arr) {
+    const displayHours = [9, 12, 18, 21];
+
+    displayHours.forEach(hour => {
+        const tempElement = document.getElementById(`temp-for-${hour}`)
+        const temp = (arr[hour] / 10).toFixed(0);
+        tempElement.textContent = `${temp}°C`;
+    })
+}
 
 function displayData(data) {
     //display data here
     const tempDisplay = document.querySelector(".temperature-display")
-    tempDisplay.innerHTML = data.temperature
+
+    // temperature display
+    tempDisplay.innerHTML = `${data.currentTemp} °C`
+
+    // icon display
+    let iconPath = data.icon
+    console.log("icon path:", iconPath)
+    displayIcon(iconPath)
+
+    // display hours 
+    displayHourTime(data.tempArray)
+
     console.log(data)
 }
 
@@ -181,5 +249,4 @@ document.addEventListener("DOMContentLoaded", function () {
             searchBar.value = ""
         }
     })
-
 });
