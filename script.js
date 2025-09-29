@@ -1,7 +1,8 @@
 let weatherResult = null;
 
-async function getWeatherData(stationID) {
-    const url = `http://localhost:5001/weather/${stationID}`
+async function getWeatherData(stationID, stationNumber) {
+    const url = `https://corsproxy.io/?https://dwd.api.proxy.bund.dev/v30/stationOverviewExtended?stationIds=${stationID},${stationNumber}`
+    console.log("Fetching URL:", url);
     try {
         // get request -- wait for response
         const response = await fetch(url);
@@ -12,22 +13,32 @@ async function getWeatherData(stationID) {
         }
 
         const result = await response.json(); // converts response to js object
-        console.log("API result keys:", Object.keys(result));
 
-        weatherResult = result[stationID];
-        let tempResult = weatherResult["forecast1"];
+        weatherResult = result
+
+        let tempResult = weatherResult[stationNumber]?.forecast1;
+        if (!tempResult) {
+            throw new Error("no forecast data found")
+        }
+
+        let dayData = weatherResult[stationNumber]?.days[0];
+        if (!dayData) {
+            throw new Error("no day data")
+        }
+
+        console.log("this is day data", dayData)
         console.log("this is tempresult", tempResult)
 
         // info to display (add as much as wanted)
         const weatherDisplay = {
-            day: weatherResult.days[0].dayDate,
+            day: dayData.dayDate,
             temperature: tempResult.temperature[0] / 10,
-            maxTemp: weatherResult.days[0].temperatureMax / 10,
-            minTemp: weatherResult.days[0].temperatureMin / 10
+            maxTemp: dayData.temperatureMax / 10,
+            minTemp: dayData.temperatureMin / 10
         }
 
         displayData(weatherDisplay)
-        console.log(result);
+        console.log(weatherDisplay);
 
     } catch (error) {
         console.log(error.message);
@@ -57,8 +68,6 @@ fetch('./cities.json')
     .then(cities => {
         citiesData = cities;
         console.log('Loaded cities:', cities);
-
-        //cityName.innerHTML = searchCities(searchInput)
 
         // Now you can use the cities array in your app as needed
     })
@@ -102,10 +111,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
             // filters based off of input, checks if at least 1 city was found
             let filtered = filterData(searchInput)
+            console.log(`this is filtered: ${filtered}`)
             if (filtered.length > 0) {
                 let cityID = filtered[0].id
+                let cityNumber = filtered[0].kennung
                 // api needs id, not city name
-                getWeatherData(cityID)
+                getWeatherData(cityID, cityNumber)
                 removeVisibility(dropdownMenu)
             }
             else {
@@ -143,6 +154,15 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     })
 
+    function displayCityData(city) {
+        try {
+            cityName.innerHTML = city.name
+        }
+        catch {
+            cityName.innerHTML = "nothing found"
+        }
+    }
+
     dropdownMenu.addEventListener("click", (event) => {
         // get the item that was clicked inside the div
         let clickedItem = event.target;
@@ -154,16 +174,11 @@ document.addEventListener("DOMContentLoaded", function () {
             // match the city with the index
             let selectedCity = matches[clickedIndex]
 
-            try {
-                cityName.innerHTML = selectedCity.name
+            displayCityData(selectedCity)
 
-                getWeatherData(selectedCity.id)
-                // clear searchbar value after user clicked
-                searchBar.value = ""
-
-            } catch (error) {
-                cityName.innerHTML = "nothing found"
-            }
+            getWeatherData(selectedCity.id, selectedCity.kennung)
+            // clear searchbar value after user clicked
+            searchBar.value = ""
         }
     })
 
