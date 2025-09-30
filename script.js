@@ -1,254 +1,257 @@
-let weatherResult = null;
-
+// ==================== CONSTANTS ====================
 const icons = {
-    1: {
-        url: "./assets/sun.png",
-        description: "Sonne"
-    },
-    2: {
-        url: `./assets/sun_with_cloud.png`,
-        description: "leicht bewölkt"
-    },
-    3: {
-        url: "./assets/sun_with_cloud.png",
-        description: "bewölkt"
-    },
-    4: {
-        url: `./assets/cloud.png`,
-        description: "Wolken"
-    }
+    1: { url: "./assets/sun.png", description: "Sonne" },
+    2: { url: "./assets/sun_with_cloud.png", description: "leicht bewölkt" },
+    3: { url: "./assets/sun_with_cloud.png", description: "bewölkt" },
+    4: { url: "./assets/cloud.png", description: "Wolken" },
+    7: { url: "./assets/rain.png", description: "Regen" }
 };
 
+// ==================== GLOBAL STATE ====================
+let weatherResult = null;
 
+// ==================== MAIN APP ====================
+document.addEventListener("DOMContentLoaded", function () {
+    let citiesData = [];
+    let matches = [];
+    let hasIcon = false;
 
-async function getWeatherData(stationID, stationNumber) {
-    const url = `https://corsproxy.io/?https://dwd.api.proxy.bund.dev/v30/stationOverviewExtended?stationIds=${stationID},${stationNumber}`
-    console.log("Fetching URL:", url);
-    try {
-        // get request -- wait for response
-        const response = await fetch(url);
+    const searchBar = document.getElementById("search-bar");
+    const dropdownMenu = document.getElementById("dropdown-menu");
+    const cityName = document.querySelector("h1");
+    const cityWeather = document.querySelector("h3");
+    const suggestionsDisplay = Array.from(document.querySelectorAll(".dropdown-suggestion"));
+    const iconDisplay = document.querySelector(".current-weather-icon");
 
-        // if bad response, show error
-        if (!response.ok) {
-            throw new Error(`Response Status: ${response.status}`);
-        }
-
-        const result = await response.json(); // converts response to js object
-
-        weatherResult = result
-
-        let tempResult = weatherResult[stationNumber]?.forecast1;
-        if (!tempResult) {
-            throw new Error("no forecast data found")
-        }
-
-        let dayData = weatherResult[stationNumber]?.days[0];
-        if (!dayData) {
-            throw new Error("no day data")
-        }
-
-        console.log("this is day data", dayData)
-        console.log("this is tempresult", tempResult)
-
-        // info to display (add as much as wanted)
-        let temperature = tempResult.temperature
-
-        const weatherDisplay = {
-            day: dayData.dayDate,
-            currentTemp: temperature[0] / 10,
-            maxTemp: dayData.temperatureMax / 10,
-            minTemp: dayData.temperatureMin / 10,
-            tempArray: temperature,
-            icon: dayData.icon
-        }
-
-        displayData(weatherDisplay)
-        console.log(weatherDisplay);
-
-    } catch (error) {
-        console.log(error.message);
+    // ==================== UTILITY FUNCTIONS ====================
+    function getInput(element) {
+        return element.value.trim();
     }
-}
 
-let hasIcon = false
+    function filterData(input) {
+        return citiesData.filter(city =>
+            city.name.toLowerCase().startsWith(input.toLowerCase())
+        );
+    }
 
-function displayIcon(iconNumber) {
-    if (!hasIcon) {
-        hasIcon = true
-        const iconDisplay = document.querySelector(".current-weather-icon")
+    function toggleVisibility(element) {
+        element.classList.remove("hidden");
+    }
 
-        let icon = icons[iconNumber]
-        console.log("icon number: ", icon)
+    function removeVisibility(element) {
+        element.classList.add("hidden");
+    }
 
-        //let iconNumberAPI = parseInt(data.icon)
+    function convertTimestamp(time) {
+        let date = new Date(time)
+        let hours = date.getHours();
+        let minutes = date.getMinutes();
+
+        let formattedMinutes = minutes.toString().padStart(2, '0')
+        let timeString = `${hours}:${formattedMinutes}`
+
+        return timeString
+    }
+
+    function normalizeWindDirection(degrees) {
+        return ((degrees % 360) + 360) % 360;
+    }
+
+    function windDirectionCompass(number) {
+        let direction
+        if (0 < number > 22.5 || 337.5 < number > 360) {
+            direction = "Norden"
+        } else if (22.5 < number > 67.5) {
+            direction = "Nordosten"
+        } else if (67.5 < number > 112.5) {
+            direction = "Osten"
+        } else if (112.5 < number > 157.5) {
+            direction = "Südosten"
+        } else if (157.5 < number > 202.5) {
+            direction = "Süden"
+        } else if (202.5 < number > 247.5) {
+            direction = "Südwesten"
+        } else if (247.5 < number > 292.5) {
+            direction = "Westen"
+        } else if (292.5 < number > 337.5) {
+            direction = "Nordwesten"
+        }
+    }
+    // ==================== WEATHER API FUNCTIONS ====================
+    async function getWeatherData(stationID) {
+        const url = `https://s3.eu-central-1.amazonaws.com/app-prod-static.warnwetter.de/v16/forecast_mosmix_${stationID}.json`;
+        console.log("Fetching URL:", url);
+
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`Response Status: ${response.status}`);
+
+            const result = await response.json();
+            weatherResult = result;
+
+            let tempResult = weatherResult.trend;
+            if (!tempResult) throw new Error("no forecast data found");
+
+            let dayData = weatherResult.days[0];
+            if (!dayData) throw new Error("no day data");
+
+            const weatherDisplay = {
+                day: dayData.dayDate,
+                currentTemp: tempResult.temperature[0] / 10,
+                maxTemp: dayData.temperatureMax / 10,
+                minTemp: dayData.temperatureMin / 10,
+                tempArray: tempResult.temperature,
+                icon: dayData.icon1 || dayData.icon2,
+                windDirection: normalizeWindDirection(dayData.windDirection) + "°",
+                windGust: dayData.windGust / 10 + " m/s",
+                sunrise: convertTimestamp(dayData.sunriseOnThisDay),
+                sunset: convertTimestamp(dayData.sunsetOnThisDay)
+            };
+            //console.log("wind direction is ", weatherDisplay.windDirection) FOR DEBUGGING
+
+            displayData(weatherDisplay);
+        } catch (error) {
+            console.log(error.message);
+        }
+    }
+
+    // ==================== DISPLAY FUNCTIONS ====================
+    function displayIcon(iconNumber) {
+        const icon = icons[iconNumber];
         if (icon) {
+            console.log("icon is ", icon.url)
             const imgElement = document.createElement("img");
             imgElement.classList.add("weather-icon");
             imgElement.style.width = "100%";
             imgElement.style.height = "90%";
-            imgElement.src = icon.url
-            iconDisplay.appendChild(imgElement)
-        }
-        else {
-            hasIcon = false
-            // show default icon ? 
+            imgElement.src = icon.url;
+            imgElement.alt = "alt text"
+            iconDisplay.appendChild(imgElement);
         }
     }
-}
 
-function displayHourTime(arr) {
-    const displayHours = [9, 12, 18, 21];
-
-    displayHours.forEach(hour => {
-        const tempElement = document.getElementById(`temp-for-${hour}`)
-        const temp = (arr[hour] / 10).toFixed(0);
-        tempElement.textContent = `${temp}°C`;
-    })
-}
-
-function displayData(data) {
-    //display data here
-    const tempDisplay = document.querySelector(".temperature-display")
-
-    // temperature display
-    tempDisplay.innerHTML = `${data.currentTemp} °C`
-
-    // icon display
-    let iconPath = data.icon
-    console.log("icon path:", iconPath)
-    displayIcon(iconPath)
-
-    // display hours 
-    displayHourTime(data.tempArray)
-
-    console.log(data)
-}
-
-
-let citiesData = [];
-
-// fetch cities.json
-fetch('./cities.json')
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
+    function clearIcon(parent) {
+        while (parent.firstChild) {
+            parent.removeChild(parent.firstChild);
         }
-        return response.json();
-    })
-    .then(cities => {
-        citiesData = cities;
-        console.log('Loaded cities:', cities);
-
-        // Now you can use the cities array in your app as needed
-    })
-    .catch(error => {
-        console.error('Failed to load cities.json:', error);
-    });
-
-document.addEventListener("DOMContentLoaded", function () {
-
-    // ELEMENTS
-    const searchBar = document.getElementById("search-bar")
-    const dropdownMenu = document.getElementById("dropdown-menu")
-    const cityName = document.querySelector("h1");
-
-    // FUNCTIONS
-    function getInput(element) {
-        let input = element.value.trim();
-        return input
+        hasIcon = false;
     }
 
-    function filterData(input) {
-        let cityFound = citiesData.filter(city =>
-            city.name.toLowerCase().startsWith(input.toLowerCase())
-        )
-        return cityFound
+    function displayHourTime(arr) {
+        const displayHours = [9, 12, 15, 18, 21];
+        displayHours.forEach(hour => {
+            const tempElement = document.getElementById(`temp-for-${hour}`);
+            const temp = (arr[hour] / 10).toFixed(0);
+            tempElement.textContent = `${temp}°C`;
+        });
     }
 
-    function toggleVisibility(element) {
-        element.classList.remove("hidden")
-    }
+    function displayData(data) {
+        clearIcon(iconDisplay);
 
-    function removeVisibility(element) {
-        element.classList.add("hidden")
-    }
+        // temperature display
+        const tempDisplay = document.querySelector(".temperature-display");
+        tempDisplay.innerHTML = `${data.currentTemp} °C`;
 
-    // listen for user input
-    searchBar.addEventListener("keydown", function (event) {
-        if (event.key === "Enter") {
-            let searchInput = getInput(searchBar)
-            if (!searchInput) return;
-
-            // filters based off of input, checks if at least 1 city was found
-            let filtered = filterData(searchInput)
-            console.log(`this is filtered: ${filtered}`)
-            if (filtered.length > 0) {
-                let cityID = filtered[0].id
-                let cityNumber = filtered[0].kennung
-                // api needs id, not city name
-                getWeatherData(cityID, cityNumber)
-                removeVisibility(dropdownMenu)
-            }
-            else {
-                console.log("error! no cities match")
-                // CHANGE THIS TO SHOW NO MATCH ON DROPDOWN MENU
-            }
+        // icon display 
+        displayIcon(data.icon);
+        if (icons[data.icon]) {
+            cityWeather.innerHTML = icons[data.icon].description;
         }
-    });
 
-    // EVENT LISTENERS
-    searchBar.addEventListener("focus", function () {
-        toggleVisibility(dropdownMenu)
-    })
+        // every 3 hour display
+        displayHourTime(data.tempArray);
 
-    searchBar.addEventListener("blur", function () {
-        setTimeout(() => removeVisibility(dropdownMenu), 200)
-    })
+        // wind gust and wind direction display
+        const windDirectionDisplay = document.querySelector(".wind-direction-display")
+        windDirectionDisplay.innerHTML = data.windDirection
 
+        const windGustDisplay = document.querySelector(".wind-gust-display")
+        windGustDisplay.innerHTML = data.windGust
 
-    let matches = []
-    const suggestionsDisplay = Array.from(document.querySelectorAll(".dropdown-suggestion"));
+        // sunrise and sunset display 
+        const sunriseDisplay = document.querySelector(".sunrise-display")
+        sunriseDisplay.innerHTML = data.sunrise
 
-    searchBar.addEventListener("input", () => {
-        let input = getInput(searchBar)
-        let data = filterData(input)
-
-        matches = data.slice(0, 3);
-        console.log(matches)
-
-        // for every suggestion div, get the city match based off of index
-        for (let i = 0; i < suggestionsDisplay.length; i++) {
-            let selectedCity = matches[i];
-            // optional chaining: access properties of objects (safe if undefined)
-            suggestionsDisplay[i].innerHTML = selectedCity?.name || '';
-        }
-    })
+        const sunsetDisplay = document.querySelector(".sunset-display")
+        sunsetDisplay.innerHTML = data.sunset
+    }
 
     function displayCityData(city) {
-        try {
-            cityName.innerHTML = city.name
-        }
-        catch {
-            cityName.innerHTML = "nothing found"
+        cityName.innerHTML = city.name || "nothing found";
+    }
+
+    function updateSuggestions(input) {
+        matches = filterData(input).slice(0, 3);
+        suggestionsDisplay.forEach((el, i) => {
+            el.innerHTML = matches[i]?.name || '';
+        });
+    }
+
+    // ==================== EVENT HANDLERS ====================
+    function handleSearchEnter(event) {
+        if (event.key === "Enter") {
+            const searchInput = getInput(searchBar);
+            if (!searchInput) return;
+
+            const filtered = filterData(searchInput);
+            if (filtered.length > 0) {
+                getWeatherData(filtered[0].id);
+                removeVisibility(dropdownMenu);
+            } else {
+                console.log("Error! No cities match");
+            }
         }
     }
 
-    dropdownMenu.addEventListener("click", (event) => {
-        // get the item that was clicked inside the div
-        let clickedItem = event.target;
-
+    function handleDropdownClick(event) {
+        const clickedItem = event.target;
         if (clickedItem.classList.contains("dropdown-suggestion")) {
-            console.log("clicked a suggestion!")
-            // get the index of the 1 suggestion out of 3 that was clicked 
-            const clickedIndex = Array.from(suggestionsDisplay).indexOf(clickedItem);
-            // match the city with the index
-            let selectedCity = matches[clickedIndex]
+            const clickedIndex = suggestionsDisplay.indexOf(clickedItem);
+            const selectedCity = matches[clickedIndex];
+            if (!selectedCity) return;
 
-            displayCityData(selectedCity)
-
-            getWeatherData(selectedCity.id, selectedCity.kennung)
-            // clear searchbar value after user clicked
-            searchBar.value = ""
+            displayCityData(selectedCity);
+            getWeatherData(selectedCity.id);
+            clearIcon(iconDisplay);
+            searchBar.value = "";
         }
-    })
+    }
+
+    // ==================== EVENT LISTENERS ====================
+    searchBar.addEventListener("keydown", handleSearchEnter);
+    searchBar.addEventListener("focus", () => toggleVisibility(dropdownMenu));
+    searchBar.addEventListener("blur", () => setTimeout(() => removeVisibility(dropdownMenu), 200));
+    searchBar.addEventListener("input", () => updateSuggestions(getInput(searchBar)));
+    dropdownMenu.addEventListener("click", handleDropdownClick);
+
+    // ==================== INITIALIZATION ====================
+    fetch('./stations_new.json')
+        .then(response => {
+            if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+            return response.json();
+        })
+        .then(cities => {
+            citiesData = cities;
+            const chemnitz = filterData("Chemnitz")[0];
+            if (chemnitz) {
+                cityName.innerHTML = chemnitz.name;
+                getWeatherData(chemnitz.id);
+            }
+        })
+        .catch(error => {
+            console.error('Failed to load cities.json:', error);
+        });
 });
+
+// ADD COMMENTS
+// FIND BETTER HIGH QUALITY PICS
+
+// IF STATEMENT FOR 
+/** 
+0–5	    Windstill
+5–10	Leichte Brise
+10–20	Mäßiger Wind
+20–30	Starker Wind
+30–40	Sehr starker Wind
+40+	    Sturm */
