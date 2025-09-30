@@ -1,16 +1,19 @@
-html, body {
+html,
+body {
     height: 100%;
     margin: 0;
     padding: 0;
 }
 
-*, *::before, *::after {
+*,
+*::before,
+*::after {
     box-sizing: border-box;
 }
 
 :root {
     font-family: "Darker Grotesque", "Arial", sans-serif;
-    --blue-gradient: linear-gradient(180deg,rgba(0, 55, 101, 1) 0%, rgba(0, 111, 203, 1) 100%);
+    --blue-gradient: linear-gradient(180deg, rgb(1, 46, 83) 0%, rgba(0, 111, 203, 1) 100%);
 }
 
 body {
@@ -20,6 +23,7 @@ body {
     background-repeat: no-repeat;
     background-size: cover;
     color: white;
+    overflow: hidden;
 }
 
 .main-menu {
@@ -53,10 +57,10 @@ body {
 }
 
 .grid-container * {
-    border-radius: 10px;
+    border-radius: 20px;
 }
 
-.grid-container > * {
+.grid-container>* {
     border: 2px dotted black;
 }
 
@@ -75,11 +79,17 @@ body {
 
 .hourly-grid {
     display: grid;
-    grid-template-columns: 5rem 5rem 5rem 5rem;
-    padding: 0 10px;
-    margin: 15px 10px;
-    gap: 0 2rem;
+    grid-template-columns: 8rem 8rem 8rem 8rem auto;
+    padding: 10px;
+    margin: 60px 15px;
+    gap: 0 5rem;
     justify-content: center;
+}
+
+.hourly-grid>div {
+    height: 150px;
+    font-size: 2rem;
+    margin-top: -20px;
 }
 
 .weather-info-grid {
@@ -87,10 +97,15 @@ body {
     grid-template-areas:
         "winddirection windspeed"
         "sunrise sunset";
+    font-size: 30px;
     padding: 0 10px;
-    margin: 15px 10px;
+    margin: 30px 10px;
     gap: 0 10rem;
     justify-content: center;
+}
+
+.weather-info-grid > div > p {
+    text-align: center;
 }
 
 .current-weather-info {
@@ -114,7 +129,7 @@ body {
     grid-row: 1 / span 2;
     flex-direction: column;
     gap: 10px;
-} 
+}
 
 .forecast-day {
     width: auto;
@@ -137,24 +152,40 @@ input::placeholder {
 
 
 .pseudo-border::before {
-    content: ''; 
-    position: absolute; 
-    bottom: 0; 
-    left: 50%; 
-    transform: translateX(-50%); 
-    width: 90%; 
-    height: 3px; 
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    height: 3px;
     background: #0E3567;
+}
+
+.right-border {
+    position: relative;
+    padding-right: 1rem;
+}
+
+.right-border::after {
+    content: '';
+    position: absolute;
+    border-radius: 20px;
+    top: 20%;
+    right: 0;
+    width: 5px;
+    height: 80%;
+    background-color: #0E3567;
 }
 
 #dropdown-menu {
     display: grid;
-    grid-template-areas: 
+    grid-template-areas:
         "suggestion"
         "suggestion"
         "suggestion";
-    background-color: lightblue;
-    width: 11rem; 
+    background-color: rgb(9, 40, 77);
+    width: 11rem;
     height: 4rem;
     border: 2px solid;
     position: absolute;
@@ -166,9 +197,29 @@ input::placeholder {
 }
 
 .temperature-display {
-    font-size: 40px;
+    margin-top: 2rem;
+    font-size: 60px;
 }
 
 img.weather-icon {
     filter: brightness(0) invert(1);
+}
+
+h3 {
+    font-family: var(--font-family);
+    font-weight: 300;
+}
+
+h1 {
+    margin: 0;
+}
+
+#search-bar {
+    border: none;
+    border-radius: 15px;
+    width: 17rem;
+    height: 2rem;
+    font-family: var(--font-family);
+    font-size: 20px;
+    padding: 5px;
 }
