@@ -1,19 +1,20 @@
 let weatherResult = null;
+
 const icons = {
     1: {
-        url: "https://i.imgur.com/gBCEmCB.png",
+        url: "./assets/sun.png",
         description: "Sonne"
     },
     2: {
-        url: "https://i.imgur.com/YBYf4Nl.png",
+        url: `./assets/sun_with_cloud.png`,
         description: "leicht bewölkt"
     },
     3: {
-        url: "https://i.imgur.com/YBYf4Nl.png",
+        url: "./assets/sun_with_cloud.png",
         description: "bewölkt"
     },
     4: {
-        url: "https://i.imgur.com/IX8JcKn.png",
+        url: `./assets/cloud.png`,
         description: "Wolken"
     }
 };
@@ -82,8 +83,9 @@ function displayIcon(iconNumber) {
         //let iconNumberAPI = parseInt(data.icon)
         if (icon) {
             const imgElement = document.createElement("img");
-            imgElement.style.width = "110px";
-            imgElement.style.height = "100px";
+            imgElement.classList.add("weather-icon");
+            imgElement.style.width = "100%";
+            imgElement.style.height = "90%";
             imgElement.src = icon.url
             iconDisplay.appendChild(imgElement)
         }
