@@ -29,8 +29,11 @@ body {
 .main-menu {
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: center;
+    width: 100%;
     height: 100%;
+    margin: 0 40px;
+    border: black 2px solid;
 }
 
 .bg-panel {
@@ -41,10 +44,8 @@ body {
     display: grid;
     height: 100vh;
     grid-template-rows: [row1-start] 5rem [row1-end] [row2-start] 5rem [row2-end];
-    grid-template-columns: 0.5fr 3.5fr 2fr;
-    gap: 20px;
-    border-style: solid;
-    border-width: 2px;
+    grid-template-columns: auto 4fr;
+    gap: 10px;
 }
 
 .weather-display {
@@ -60,28 +61,11 @@ body {
     border-radius: 20px;
 }
 
-.grid-container>* {
-    border: 2px dotted black;
-}
-
-.nav-sidebar {
-    display: grid;
-    place-items: center;
-    grid-column: 1;
-    grid-row: 1 / span 2;
-}
-
-.nav-icon {
-    border: 2px dotted black;
-    width: 3rem;
-    height: 3rem;
-}
-
 .hourly-grid {
     display: grid;
     grid-template-columns: 8rem 8rem 8rem 8rem auto;
     padding: 10px;
-    margin: 60px 15px;
+    margin: 50px 15px;
     gap: 0 5rem;
     justify-content: center;
 }
@@ -104,7 +88,7 @@ body {
     justify-content: center;
 }
 
-.weather-info-grid > div > p {
+.weather-info-grid>div>p {
     text-align: center;
 }
 
@@ -117,7 +101,6 @@ body {
 }
 
 .current-weather-icon {
-    border: dotted 2px black;
     height: 15rem;
     width: 15rem;
 }
@@ -129,13 +112,7 @@ body {
     grid-row: 1 / span 2;
     flex-direction: column;
     gap: 10px;
-}
-
-.forecast-day {
-    width: auto;
-    flex-grow: 1;
-    padding: 0 1rem;
-    position: relative;
+    border: black 2px solid;
 }
 
 .search-section {
@@ -185,8 +162,8 @@ input::placeholder {
         "suggestion"
         "suggestion";
     background-color: rgb(9, 40, 77);
-    width: 11rem;
-    height: 4rem;
+    width: 17rem;
+    height: 6rem;
     border: 2px solid;
     position: absolute;
     overflow: hidden;
@@ -199,10 +176,6 @@ input::placeholder {
 .temperature-display {
     margin-top: 2rem;
     font-size: 60px;
-}
-
-img.weather-icon {
-    filter: brightness(0) invert(1);
 }
 
 h3 {
@@ -222,4 +195,42 @@ h1 {
     font-family: var(--font-family);
     font-size: 20px;
     padding: 5px;
+}
+
+/** 4 DAY FORECAST **/
+.forecast-day {
+    display: flex;
+    width: auto;
+    flex-grow: 1;
+    padding: 0 1rem;
+    position: relative;
+    align-items: center;
+    /**justify-content: space-between; **/
+}
+
+.forecast-day>* {
+    margin: 10px;
+    padding: 10px;
+    font-size: 28px;
+}
+
+.day-date {
+    font-size: 38px;
+    margin-right: 25px;
+}
+
+.forecast-icon {
+    width: 6rem;
+    height: 6rem;
+}
+
+.graph {
+    height: 10rem;
+    margin: 20px;
+    border: 2px solid black;
+}
+
+.min-temp, .max-temp {
+    margin: 0;
+    padding: 1px;
 }
