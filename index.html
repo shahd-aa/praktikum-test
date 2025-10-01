@@ -2,9 +2,9 @@
 <html>
 
 <head>
-    <title>Wetter App</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wetter App</title>
     <!-- darker grotesque font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -16,16 +16,10 @@
 
 <body>
     <div class="grid-container">
-        <div class="bg-panel nav-sidebar">
-            <div class="nav-icon" id="weather-icon"></div>
-            <div class="nav-icon" id="current-location-icon"></div>
-            <div class="nav-icon" id="other-locations-icon"></div>
-        </div>
 
         <div class="main-menu">
             <div class="search-section">
-                <input class="bg-panel" id="search-bar" type="text"
-                    placeholder="Ort suchen..." name="search">
+                <input class="bg-panel" id="search-bar" type="text" placeholder="Ort suchen..." name="search">
                 <div class="hidden" id="dropdown-menu">
                     <div class="dropdown-suggestion"></div>
                     <div class="dropdown-suggestion"></div>
@@ -68,32 +62,54 @@
 
             <div class="bg-panel weather-info-grid">
                 <div>
-                    <p>Wind Direction</p>
+                    <p style="font-weight: bold;">Windrichtung</p>
                     <p class="wind-direction-display">test</p>
                 </div>
                 <div>
-                    <p>Wind Gust</p>
+                    <p style="font-weight: bold;">Windböen</p>
                     <p class="wind-gust-display">test</p>
                 </div>
                 <div>
-                    <p>Sunrise</p>
+                    <p style="font-weight: bold;">Sonnenaufgang</p>
                     <p class="sunrise-display">test</p>
                 </div>
                 <div>
-                    <p>Sunset</p>
+                    <p style="font-weight: bold;">Sonnenuntergang</p>
                     <p class="sunset-display">test</p>
                 </div>
             </div>
         </div>
 
         <div class="bg-panel weekly-weather-sidebar">
-            <div class="pseudo-border forecast-day"></div>
-            <div class="pseudo-border forecast-day"></div>
-            <div class="pseudo-border forecast-day"></div>
-            <div class="pseudo-border forecast-day"></div>
-            <div class="pseudo-border forecast-day"></div>
-            <div class="pseudo-border forecast-day"></div>
-            <div class="forecast-day"></div>
+            <div class="pseudo-border forecast-day">
+                <p class="day-1-date day-date">Date</p>
+                <p class="day-1-min min-temp">WeatherMin</p>
+                <p class="day-1-max max-temp">WeatherMax</p>
+                <p class="day-1-precip precipitation">Precipitation</p>
+                <div class="day-1-icon forecast-icon"></div>
+            </div>
+            <div class="pseudo-border forecast-day">
+                <p class="day-2-date day-date">Date</p>
+                <p class="day-2-min min-temp">WeatherMin</p>
+                <p class="day-2-max max-temp">WeatherMax</p>
+                <p class="day-2-precip precipitation">Precipitation</p>
+                <div class="day-2-icon forecast-icon"></div>
+            </div>
+            <div class="pseudo-border forecast-day">
+                <p class="day-3-date day-date">Date</p>
+                <p class="day-3-min min-temp">WeatherMin</p>
+                <p class="day-3-max max-temp">WeatherMax</p>
+                <p class="day-3-precip precipitation">Precipitation</p>
+                <div class="day-3-icon forecast-icon">Icon</div>
+            </div>
+            <div class="pseudo-border forecast-day">
+                <p class="day-4-date day-date">Date</p>
+                <p class="day-4-min min-temp">WeatherMin</p>
+                <p class="day-4-max max-temp">WeatherMax</p>
+                <p class="day-4-precip precipitation">Precipitation</p>
+                <div class="day-4-icon forecast-icon">Icon</div>
+            </div>
+            <div class="graph forecast-day"></div>
         </div>
     </div>
 
