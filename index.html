@@ -8,6 +8,7 @@
     <!-- darker grotesque font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Darker+Grotesque:wght@300..900&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" href="styles.css">
@@ -62,20 +63,32 @@
 
             <div class="bg-panel weather-info-grid">
                 <div>
-                    <p style="font-weight: bold;">Windrichtung</p>
-                    <p class="wind-direction-display">test</p>
+                    <div style="display: flex; align-items: center;">
+                        <p class="info-display-title">Windrichtung</p>
+                        <img src="./assets/icons/wind_direction.png" width="40" height="50" alt="icon" />
+                    </div>
+                    <p class="info-display-data wind-direction-display">test</p>
                 </div>
                 <div>
-                    <p style="font-weight: bold;">Windböen</p>
-                    <p class="wind-gust-display">test</p>
+                    <div style="display: flex; align-items: center;">
+                        <p class="info-display-title">Windböen</p>
+                        <img src="./assets/icons/wind_direction.png" width="40" height="50" alt="icon" />
+                    </div>
+                    <p class="info-display-data wind-gust-display">test</p>
                 </div>
                 <div>
-                    <p style="font-weight: bold;">Sonnenaufgang</p>
-                    <p class="sunrise-display">test</p>
+                    <div style="display: flex; align-items: center;">
+                        <p class="info-display-title">Sonnenaufgang</p>
+                        <img src="./assets/icons/sunrise.png" width="50" height="50" alt="icon" />
+                    </div>
+                    <p class="info-display-data sunrise-display">test</p>
                 </div>
                 <div>
-                    <p style="font-weight: bold;">Sonnenuntergang</p>
-                    <p class="sunset-display">test</p>
+                    <div style="display: flex; align-items: center;">
+                        <p class="info-display-title">Sonnenuntergang</p>
+                        <img src="./assets/icons/sunset.png" width="50" height="50" alt="icon" />
+                    </div>
+                    <p class="info-display-data sunset-display">test</p>
                 </div>
             </div>
         </div>
@@ -109,7 +122,9 @@
                 <p class="day-4-precip precipitation">Precipitation</p>
                 <div class="day-4-icon forecast-icon">Icon</div>
             </div>
-            <div class="graph forecast-day"></div>
+            <div class="graph forecast-day">
+                <canvas id="temperature-chart" width="400px" height="240px"></canvas>
+            </div>
         </div>
     </div>
 
