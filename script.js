@@ -110,12 +110,49 @@ document.addEventListener("DOMContentLoaded", function () {
     }
 
     // ==================== WEATHER API FUNCTIONS ====================
+
+    async function getMeasurements(stationID) {
+        const url = `https://corsproxy.io/?https://dwd.api.proxy.bund.dev/v30/stationOverviewExtended?stationIds=${stationID}`;
+        console.log("Fetching URL:", url);
+
+        try {
+            const response = await fetch(url, {
+                method: "GET",
+                headers: {
+                    "Accept": "application/json"
+                }
+            });
+
+            if (!response.ok) throw new Error(`Response Status: ${response.status}`);
+
+            const measurementResult = await response.json();
+            const stationData = measurementResult[stationID];
+
+            if (!stationData) throw new Error("No station data found");
+
+            const forecast = stationData.forecast1;
+            if (!forecast) throw new Error("No forecast1 data found");
+
+            const measurements = {
+                start: forecast.start,
+                DWDTemp: forecast.temperature
+            };
+
+            console.log("Weather Display:", measurements);
+            return measurements
+
+        } catch (error) {
+            console.log("Error:", error.message);
+        }
+    }
+
     async function getWeatherData(stationID) {
         const url = `https://s3.eu-central-1.amazonaws.com/app-prod-static.warnwetter.de/v16/forecast_mosmix_${stationID}.json`;
         console.log("Fetching URL:", url);
 
         try {
             const response = await fetch(url);
+            let measurements = await getMeasurements(stationID)
             if (!response.ok) throw new Error(`Response Status: ${response.status}`);
 
             const result = await response.json();
@@ -138,6 +175,10 @@ document.addEventListener("DOMContentLoaded", function () {
                 sunset: dayData[0].sunsetOnThisDay,
                 start: tempResult.start,
 
+                // dwd api temperature 
+                DWDTemp: measurements?.DWDTemp || null,
+                DWDStart: measurements?.start || null,
+
                 // forecast for next week
                 days: [dayData[0], dayData[1], dayData[2], dayData[3]],
             };
@@ -157,6 +198,19 @@ document.addEventListener("DOMContentLoaded", function () {
             console.log("icon is ", icon.url)
             console.log("icon number is ", iconNumber)
             const imgElement = document.createElement("img");
+
+            if (iconNumber === 1) {
+                imgElement.classList.add("icon-sun");
+            } else if (iconNumber === 2 || iconNumber === 3) {
+                imgElement.classList.add("icon-cloud");
+            } else if (iconNumber === 4) {
+                imgElement.classList.add("icon-cloud");
+            } else if (iconNumber === 5 || iconNumber === 6) {
+                imgElement.classList.add("icon-fog");
+            } else if (iconNumber >= 7 && iconNumber <= 9) {
+                imgElement.classList.add("icon-rain");
+            }
+
             imgElement.classList.add("weather-icon");
             imgElement.style.width = "100%";
             imgElement.style.height = "90%";
@@ -173,23 +227,44 @@ document.addEventListener("DOMContentLoaded", function () {
         hasIcon = false;
     }
 
-    function displayHourTime(arr) {
+    function displayHourTime(arr, startTimestamp) {
         const displayHours = [9, 12, 15, 18, 21];
+
+        let forecastStart = new Date(startTimestamp);
+        let forecastStartHour = forecastStart.getHours();
 
         displayHours.forEach(hour => {
             const tempElement = document.getElementById(`temp-for-${hour}`);
-            const temp = (arr[hour] / 10);
-            tempElement.textContent = `${temp}°C`;
+            const index = hour - forecastStartHour; // e.g. 9am - 0am = [9]
+
+            if (index >= 0 && index < arr.length) {
+                const temp = (arr[hour] / 10);
+                tempElement.textContent = `${temp}°C`;
+            }
         });
     }
 
     function displayData(data) {
         clearIcon(iconDisplay);
 
+        displayTemperatureChart(data.DWDTemp)
+
         // temperature display
         const tempDisplay = document.querySelector(".temperature-display");
-        let currentTemp = getCurrent(data.tempArray, data.start)
-        tempDisplay.innerHTML = `${currentTemp / 10} °C`;
+        let currentTemp
+
+        if (data.DWDTemp) {
+            currentTemp = getCurrent(data.DWDTemp, data.DWDStart)
+            tempDisplay.innerHTML = `${currentTemp / 10} °C`;
+            console.log("this is the dwdtemp ", currentTemp)
+
+            // every 3 hour display
+            displayHourTime(data.DWDTemp, data.DWDStart);
+        } else {
+            currentTemp = getCurrent(data.tempArray, data.start)
+            tempDisplay.innerHTML = `${currentTemp / 10} °C`;
+            console.log("this is the default temp ", currentTemp)
+        }
 
         // icon display 
         let currentIcon = getCurrent(data.icon, data.start)
@@ -197,9 +272,6 @@ document.addEventListener("DOMContentLoaded", function () {
         if (icons[currentIcon]) {
             cityWeather.innerHTML = icons[currentIcon].description;
         }
-
-        // every 3 hour display
-        displayHourTime(data.tempArray);
 
         // wind gust and wind direction display
         const windDirectionDisplay = document.querySelector(".wind-direction-display")
@@ -288,6 +360,114 @@ document.addEventListener("DOMContentLoaded", function () {
             searchBar.value = "";
         }
     }
+
+let temperatureChart = null;
+
+    // Chart code here
+    function displayTemperatureChart(tempArray) {
+        if (temperatureChart) {
+            temperatureChart.destroy();
+        }
+
+        const ctx = document.getElementById('temperature-chart').getContext('2d')
+        const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+        gradient.addColorStop(0, 'rgba(163, 243, 203, 1)'); // Start color
+        gradient.addColorStop(1, 'rgba(62, 152, 212, 1)'); // End color
+
+        let temperatures = []
+        for (let i = 0; i < 24; i++) {
+            temperatures.push({
+                hour: i,
+                temperature: tempArray[i] / 10
+            })
+        }
+        console.log("this is the array ", temperatures)
+
+        let labels = temperatures.map(t => t.hour)
+
+        // chart dataset
+        let chartData = {
+            labels: labels,
+            datasets: [{
+                label: "Temperaturkurve",
+                data: temperatures.map(row => row.temperature),
+                fill: true,
+                backgroundColor: gradient,
+                borderColor: "rgba(255, 255, 255, 1)",
+                tension: 0.4,
+                borderWidth: 2
+
+            }]
+        };
+
+        // chart configuration
+        const config = {
+            type: "line",
+            data: chartData,
+            options: {
+                color: '#ffffffff',
+                responsive: true,
+                devicePixelRatio: 2,
+                plugins: {
+                    title: {
+                        display: true,
+                        text: "24-Stunden-Temperatur",
+                        color: '#1a2a35ff'
+                    },
+                    font: {
+                        family: "Arial",
+                        size: 24,
+                        weight: 'bold',
+                    }
+                },
+                scales: {
+                    x: {
+                        ticks: {
+                            color: '#ffffffff',
+                            font: {
+                                family: "Arial",
+                                size: 14,
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: "Stunden (24h)",
+                            color: '#ffffffff',
+                            font: {
+                                family: "Arial",
+                                size: 14,
+                                weight: "bold",
+                            }
+                        }
+                    },
+                    y: {
+                        ticks: {
+                            color: '#ffffffff',
+                            font: {
+                                family: "'Verdana', sans-serif",
+                                size: 14,
+                            }
+                        },
+                        title: {
+                            display: true,
+                            text: "Temperatur in °C",
+                            color: '#ffffffff',
+                            font: {
+                                family: "'Verdana', sans-serif",
+                                size: 14,
+                                weight: "bold",
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        temperatureChart = new Chart(
+            document.getElementById("temperature-chart"),
+            config
+        )
+    };
+
 
     // ==================== EVENT LISTENERS ====================
     searchBar.addEventListener("keydown", handleSearchEnter);
